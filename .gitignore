@@ -5,6 +5,3 @@
 
 # checkpoints
 *.ipynb_checkpoints/
-
-# Data not to be uploaded to repo
-data/
