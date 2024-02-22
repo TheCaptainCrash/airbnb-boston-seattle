@@ -9,11 +9,6 @@ import re
 from datetime import datetime
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score
-from sklearn.preprocessing import normalize
-
 
 def coef_weights(lm_model, X_train):
     '''
@@ -28,68 +23,11 @@ def coef_weights(lm_model, X_train):
     variable attached to the coefficient.
     '''
     coefs_df = pd.DataFrame()
-    coefs_df['est_int'] = X_train.columns
-    coefs_df['coefs'] = lm_model.coef_
+    coefs_df['est_int']   = X_train.columns
+    coefs_df['coefs']     = lm_model.coef_
     coefs_df['abs_coefs'] = np.abs(lm_model.coef_)
     coefs_df = coefs_df.sort_values('abs_coefs', ascending=False)
     return coefs_df
-
-
-def find_optimal_lm_mod(X, y, cutoffs, test_size=.30, random_state=42):
-    '''
-    INPUT
-    X - pandas dataframe, X matrix
-    y - pandas dataframe, response variable
-    cutoffs - list of ints, cutoff for number of non-zero values in dummy categorical vars
-    test_size - float between 0 and 1, default 0.3, determines the proportion of data as test data
-    random_state - int, default 42, controls random state for train_test_split
-    plot - boolean, default 0.3, True to plot result
-
-    OUTPUT
-    r2_scores_test - list of floats of r2 scores on the test data
-    r2_scores_train - list of floats of r2 scores on the train data
-    lm_model - model object from sklearn
-    X_train, X_test, y_train, y_test - output from sklearn train test split used for optimal model
-    '''
-    r2_scores_test, r2_scores_train, num_feats, results = [], [], [], dict()
-    for cutoff in cutoffs:
-
-        # reduce X matrix
-        reduce_X = X.iloc[:, np.where((X.sum() > cutoff) == True)[0]]
-        num_feats.append(reduce_X.shape[1])
-        reduce_X = normalize(reduce_X)
-        # split the data into train and test
-        X_train, X_test, y_train, y_test = train_test_split(
-            reduce_X, y, test_size=test_size, random_state=random_state)
-
-        # fit the model and obtain pred response
-        lm_model = LinearRegression()
-        lm_model.fit(X_train, y_train)
-        y_test_preds = lm_model.predict(X_test)
-        y_train_preds = lm_model.predict(X_train)
-
-        # append the r2 value from the test set
-        r2_scores_test.append(r2_score(y_test, y_test_preds))
-        r2_scores_train.append(r2_score(y_train, y_train_preds))
-        results[str(cutoff)] = r2_score(y_test, y_test_preds)
-
-    best_cutoff = max(results, key=results.get)
-
-    # reduce X matrix
-    reduce_X = X.iloc[:, np.where((X.sum() > int(best_cutoff)) == True)[0]]
-    num_feats.append(reduce_X.shape[1])
-
-    # split the data into train and test
-    reduce_X_n = normalize(reduce_X)
-    X_train, X_test, y_train, y_test = train_test_split(
-        reduce_X_n, y, test_size=test_size, random_state=random_state)
-
-    # fit the model
-    lm_model = LinearRegression()
-    lm_model.fit(X_train, y_train)
-
-    return r2_scores_test, r2_scores_train, lm_model, X_train, X_test, y_train, y_test, reduce_X
-
 
 def complex_category_to_dummy(df, col):
     '''
