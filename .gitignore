@@ -1,10 +1,10 @@
 # Byte-compiled / optimized / DLL files
-__pycache__/
+*__pycache__/
 *.py[cod]
 *$py.class
 
 # checkpoints
-.ipynb_checkpoints/
+*.ipynb_checkpoints/
 
 # Data not to be uploaded to repo
 data/

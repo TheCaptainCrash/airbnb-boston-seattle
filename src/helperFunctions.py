@@ -91,18 +91,6 @@ def find_optimal_lm_mod(X, y, cutoffs, test_size=.30, random_state=42):
     return r2_scores_test, r2_scores_train, lm_model, X_train, X_test, y_train, y_test, reduce_X
 
 
-def get_column_names(df):
-    return df.columns.values
-
-
-def impute_mean(df, col):
-    df[col].fillna(df[col].mean())
-
-
-def impute_median(df, col):
-    df[col].fillna(df[col].median())
-
-
 def complex_category_to_dummy(df, col):
     '''
     
@@ -125,14 +113,6 @@ def complex_category_to_dummy(df, col):
             cat_bool = [cat in x for x in col_list]
             df[cat] = cat_bool
     return df
-
-
-def get_category_columns(df):
-    return df.select_dtypes(include="object").columns.values
-
-
-def get_numeric_columns(df):
-    return df.select_dtypes(include=["int", "float"]).columns.values
 
 
 def get_unique_values_from_combinations(df, col):
@@ -208,7 +188,7 @@ def convert_percent_to_numeric(df):
     in %) are converted to numeric values
 
     '''
-    possibleColumns = get_category_columns(df)
+    possibleColumns = df.select_dtypes(include="object").columns.values(df)
     for cIndex, col in enumerate(possibleColumns):
         nonNullVals = df.loc[df[col].notnull()][col]
         isPercentage = True
@@ -240,7 +220,7 @@ def convert_dollars_to_numeric(df):
     with $) are converted to numeric values
 
     '''
-    possibleColumns = get_category_columns(df)
+    possibleColumns = df.select_dtypes(include="object").columns.values(df)
     for cIndex, col in enumerate(possibleColumns):
         nonNullVals = df.loc[df[col].notnull()][col]
         isMoney = True
@@ -276,7 +256,7 @@ def convert_date_to_numeric(df):
         YYYY/MM/DD
 
     '''
-    possibleColumns = get_category_columns(df)
+    possibleColumns = df.select_dtypes(include="object").columns.values(df)
     # TODO: Support more formats
     dayString = '(3[01]|[12][0-9]|0?[1-9])'
     monthString = '(1[0-2]|0?[1-9])'
